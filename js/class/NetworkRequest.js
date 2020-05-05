@@ -10,6 +10,7 @@ const CF_BGJ_HEADER = "cf-bgj"; // used for minification / image polish / mirage
 const CF_RAILGUN_HEADER = "cf-railgun";
 const CF_IMAGE_RESIZING_HEADER = "cf-resized";
 const CF_RAY_HEADER = "cf-ray";
+const CF_REQUEST_HEADER = "cf-request-id";
 const CACHE_CONTROL_HEADER = "cache-control";
 const CONTENT_TYPE_HEADER = "content-type";
 const CONTENT_LENGTH_HEADER = "content-length";
@@ -57,6 +58,7 @@ class NetworkRequest {
     this.minified = false;
     this.rayId = "";
     this.colo = "";
+    this.cfRequestId = ""; // Replacinng 'rayId' in the future
 
     // Image Polish
     this.origSize = 0; // origSize is shared with minify and polish
@@ -127,10 +129,10 @@ class NetworkRequest {
   parseCfPolishedHeader(headerValue) {
     // Cf-Polished: origSize=74088, status=webp_bigger, origFmt=jpeg
     let items = headerValue.split(",");
-    for (let i=0; i < items.length; i++) {
+    for (let i = 0; i < items.length; i++) {
       let item = items[i].trim();
       if (item.match('origSize=')) {
-        this.origSize = parseInt(item.split("=")[1]); 
+        this.origSize = parseInt(item.split("=")[1]);
       } else if (item.match('origFmt=')) {
         this.imagePolishOrigFmt = item.split("=")[1];
       } else if (item.match('status=')) {
@@ -183,7 +185,7 @@ class NetworkRequest {
   checkCFFeatures() {
     for (let header in this.responseHeaders) {
       let headerValue = (this.responseHeaders[header].trim()).toLowerCase();
-      switch(header) {
+      switch (header) {
         case CF_CACHE_STATUS_HEADER:
           this.cfCacheStatus = headerValue;
           if (CACHE_STATUSES.indexOf(headerValue) > -1) {
@@ -213,6 +215,8 @@ class NetworkRequest {
           this.rayId = rayIds[0];
           this.colo = rayIds[1];
           break;
+        case CF_REQUEST_HEADER:
+          this.cfRequestId = headerValue;
         case CACHE_CONTROL_HEADER:
           // TODO
           break;
@@ -224,7 +228,7 @@ class NetworkRequest {
           this.contentLength = parseInt(this.responseHeaders[header]);
           break;
         default:
-          // Do nothing
+        // Do nothing
       }
     }
   }
@@ -239,6 +243,7 @@ class NetworkRequest {
   getTabId() { return this.tabId; }
   getTTFB() { return "TODO getTTFB"; }
   getRayId() { return this.rayId; }
+  getCFRequestId() { return this.cfRequestId; }
   getColo() { return this.colo; }
   getContentLength() { return this.contentLength; }
 
