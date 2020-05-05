@@ -68,6 +68,7 @@ var isReadyToCheck = true;
 // Another collection of popup response header list
 const popupResponseHeaders = [
   "cf-ray",
+  "cf-request-id",
   "content-type",
   "content-length",
   "cf-cache-status",
@@ -106,7 +107,7 @@ var popupHeight = 550;
 /**
  * Check to see if content script has already been injected
  */
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   if (message.type !== "content-script-status") return;
   tabId = message.tabId;
 
@@ -118,7 +119,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 /**
  * Check to see if the page is dom-ready
  */
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   if (message.type !== "content-script-dom-status") return;
   tabId = message.tabId;
 
@@ -344,7 +345,7 @@ function hasPopUpDOM() {
  * image DOMs on the page. Then, it calls 'markEveryImage' function to find the
  * matching image DOMs from the received requests.
  */
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   if (message.type !== "content-script-paint") return;
 
   // End if no new image request(s) came in.
@@ -363,20 +364,20 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 
   // Get all 'image' tagged DOMs
   let htmlElementsImg = $("img:not([cfdebugger-request-id])");
-  htmlElementsImg.each(function(index, value) {
+  htmlElementsImg.each(function (index, value) {
     paintTargetElements.push($(this));
   });
 
   // Get all 'figure' tagged DOMs
   let htmlElementsFigure = $("figure:not([cfdebugger-request-id])");
-  htmlElementsFigure.each(function(index, value) {
+  htmlElementsFigure.each(function (index, value) {
     paintTargetElements.push($(this));
   });
 
   let temp;
 
   // Get all background-image with 'div' tag
-  $("div:not([cfdebugger-request-id])").filter(function() {
+  $("div:not([cfdebugger-request-id])").filter(function () {
     temp = $(this).css("background-image");
     if (temp.includes("url") && !temp.includes("data:image")) {
       paintTargetElements.push($(this));
@@ -384,7 +385,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   });
 
   // Get all background-image with 'span' tag
-  $("span:not([cfdebugger-request-id])").filter(function() {
+  $("span:not([cfdebugger-request-id])").filter(function () {
     temp = $(this).css("background-image");
     if (temp.includes("url") && !temp.includes("data:image")) {
       paintTargetElements.push($(this));
@@ -392,7 +393,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   });
 
   // Get all background-image with 'a' tag
-  $("a:not([cfdebugger-request-id])").filter(function() {
+  $("a:not([cfdebugger-request-id])").filter(function () {
     temp = $(this).css("background-image");
     if (temp.includes("url") && !temp.includes("data:image")) {
       paintTargetElements.push($(this));
@@ -400,7 +401,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   });
 
   // Get all background-image with 'i' tag
-  $("i:not([cfdebugger-request-id])").filter(function() {
+  $("i:not([cfdebugger-request-id])").filter(function () {
     temp = $(this).css("background-image");
     if (temp.includes("url") && !temp.includes("data:image")) {
       paintTargetElements.push($(this));
@@ -497,7 +498,7 @@ function parseBackgroundURL(backgroundImageURL) {
  * Hasn't implemented yet.
  * Resource: https://speckyboy.com/css-js-notification-alert-code/
  */
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   // key Alt + Shift + C
   if (message.type !== "copy-popup-url" || message.tabId != tabId) return;
   // Ignore iframe since only the main contains the popup DOM.
@@ -568,7 +569,7 @@ function updateCopyPopupImageURL(success) {
 
     notificationTextDOM.addClass("active");
     // Disply the message for 1.25 second.
-    setTimeout(function() {
+    setTimeout(function () {
       notificationTextDOM.removeClass("active");
       if (success) {
         notificationTextDOM.removeClass("success");
@@ -592,7 +593,7 @@ function updateCopyPopupImageURL(success) {
  * Trigger whenever user cursor enters a different DOM object, and
  * then it checks the images underneath of the cursor point.
  */
-$("body").on("mouseenter", "*", function(event) {
+$("body").on("mouseenter", "*", function (event) {
   if (hoverMouseMovementCounter()) {
     hoveredImageChecker();
   }
@@ -673,7 +674,7 @@ function hidePopup() {
  * Trigger whenever user cursor moves.
  * Use all image DOMs found from 'mouseenter' event.
  */
-$("body").on("mousemove", "*", function(event) {
+$("body").on("mousemove", "*", function (event) {
   // Set current cursor X and Y coordinates.
   mouseX = event.clientX;
   mouseY = event.clientY;
@@ -761,7 +762,7 @@ function moveChecker(mX, mY) {
 
   // Iterate through hovered image DOMs from 'hoveredImageChecker'
   if (childMatch.length > 0) {
-    childMatch.each(function() {
+    childMatch.each(function () {
       // Get image DOM coordinates and width & height
       let tempObj = $(this)[0].getBoundingClientRect();
 
@@ -1032,7 +1033,7 @@ function sendPopupImageWithSpecialHeader(imageURL, thumbnailImage = null) {
     // Special Popup image request header
     thumbnailImageRequest.setRequestHeader("Dr-Flare-Popup", "1");
     thumbnailImageRequest.responseType = "arraybuffer";
-    thumbnailImageRequest.onload = function(oEvent) {
+    thumbnailImageRequest.onload = function (oEvent) {
       // Response's body content in ArrayBuffer
       let arrayBuffer = thumbnailImageRequest.response;
       if (arrayBuffer) {
@@ -1046,7 +1047,7 @@ function sendPopupImageWithSpecialHeader(imageURL, thumbnailImage = null) {
          * to-string-maximum-call-stack-size-exceeded/49124600
          */
         let b64encoded = btoa(
-          new Uint8Array(u8).reduce(function(data, byte) {
+          new Uint8Array(u8).reduce(function (data, byte) {
             return data + String.fromCharCode(byte);
           }, "")
         );
@@ -1150,7 +1151,7 @@ function sendImageToDevTools(imageRequest) {
 }
 
 // Update the popup window when iframe image was hovered.
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   if (message.type.match("found-image-response") && tabId == message.tabId) {
     if (!checkIFrameImage()) {
       setPopupPosition();
@@ -1164,7 +1165,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 });
 
 // Reset iframe image back to its original color filtering.
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   if (message.type.match("remove-grey-scale") && tabId == message.tabId) {
     // Only when the current content script is on iframe
     if (checkIFrameImage()) {
