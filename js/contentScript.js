@@ -60,14 +60,15 @@ var previousHoveredImageURL = "";
 var isReadyToCheck = true;
 
 // A list of popup response headers
-// var popupResponseHeaders = [
+// var POPUP_RESPONSE_HEADERS = [
 //   'cf-ray', 'content-type',
 //   'content-length'
 // ];
 
 // Another collection of popup response header list
-const popupResponseHeaders = [
+const POPUP_RESPONSE_HEADERS = [
   "cf-ray",
+  "cf-request-id",
   "content-type",
   "content-length",
   "cf-cache-status",
@@ -76,12 +77,11 @@ const popupResponseHeaders = [
   "cf-railgun",
   "cf-polished",
   "cf-bgj",
-  "cf-resized",
-  "cf-request-id"
+  "cf-resized"
 ];
 
 // A list of popup labels
-const cloudflareFeatureNames = [
+const CLOUDFLARE_FEATURE_NAMES = [
   "Proxied",
   "HIT",
   "MISS",
@@ -95,8 +95,8 @@ const cloudflareFeatureNames = [
 const CF_DEBUGGER_URL_TEXT_AREA = "cf-debugger-popup-url-text-area";
 
 // Popup dimension: width and height
-var popupWidth = 370;
-var popupHeight = 550;
+const POPUP_WIDTH = 370;
+const POPUP_HEIGHT = 550;
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -198,7 +198,7 @@ function appendPopupDOMToBody() {
 
   // Add labels to popup
   let i, j, popupRow, popupColumn, popupLabel;
-  for (i = 0; i < cloudflareFeatureNames.length; i = i + numberOfLabelsInRow) {
+  for (i = 0; i < CLOUDFLARE_FEATURE_NAMES.length; i = i + numberOfLabelsInRow) {
     popupRow = document.createElement("div");
     popupRow.className = "cf-debugger-popup-row";
 
@@ -208,7 +208,7 @@ function appendPopupDOMToBody() {
 
       popupLabel = document.createElement("div");
       popupLabel.className = "cf-debugger-popup-label";
-      textNode = document.createTextNode(cloudflareFeatureNames[j]);
+      textNode = document.createTextNode(CLOUDFLARE_FEATURE_NAMES[j]);
       popupLabel.appendChild(textNode);
 
       popupColumn.appendChild(popupLabel);
@@ -993,8 +993,8 @@ function updatePopupResponseHeaders(popupHeaderDOM, imageRequest) {
     responseSubHeader,
     isInResponseHeaders;
 
-  for (let i = 0; i < popupResponseHeaders.length; i++) {
-    header = popupResponseHeaders[i];
+  for (let i = 0; i < POPUP_RESPONSE_HEADERS.length; i++) {
+    header = POPUP_RESPONSE_HEADERS[i];
     isInResponseHeaders = imageRequest.responseHeaders[header] != undefined;
 
     if (isInResponseHeaders) {
@@ -1071,7 +1071,7 @@ function setPopupPosition(imageDOM = null) {
   let windowWidth = $(window).width();
   // On the very first, popup window width is set to 0
   let width =
-    popupDOMDimension.width == 0 ? popupWidth : popupDOMDimension.width;
+    popupDOMDimension.width == 0 ? POPUP_WIDTH : popupDOMDimension.width;
 
   // Popup stays at the right corner unless cursor X position is closer to
   // default popup position. Y-axis isn't important.
