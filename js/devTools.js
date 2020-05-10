@@ -10,7 +10,7 @@
  * sending one-by-one. This definitely helps loading speed tremendously.
  */
 function startInterval() {
-  interval = setInterval(function() {
+  interval = setInterval(function () {
     if (requestObjectsImages.length > 0) {
       if (contectScriptInjected) {
         let heartBeatMsg = {
@@ -20,7 +20,7 @@ function startInterval() {
           message: "alive?",
           from: "devTools.js"
         };
-        chrome.tabs.sendMessage(tabId, heartBeatMsg, function(response) {
+        chrome.tabs.sendMessage(tabId, heartBeatMsg, function (response) {
           if (response !== undefined && response.result === true) {
             paintedObjectsImages = requestObjectsImages;
             chrome.tabs.sendMessage(tabId, {
@@ -52,7 +52,7 @@ function startInterval() {
  * @returns {*} - new Promise
  */
 function injectContentScript(tabId, frameId) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     let heartBeatMsg = {
       type: "content-script-status",
       tabId: tabId,
@@ -60,7 +60,7 @@ function injectContentScript(tabId, frameId) {
       message: "alive?",
       from: "devTools.js"
     };
-    chrome.tabs.sendMessage(tabId, heartBeatMsg, function(response) {
+    chrome.tabs.sendMessage(tabId, heartBeatMsg, function (response) {
       if (response !== undefined && response.result === true) {
         console.log("ContentScript already exists");
         resolve();
@@ -73,15 +73,15 @@ function injectContentScript(tabId, frameId) {
         chrome.tabs.insertCSS(
           tabId,
           { file: "css/overlay.css", allFrames: true },
-          function() {
+          function () {
             chrome.tabs.executeScript(
               tabId,
               { file: "lib/jquery-3.1.1.min.js", allFrames: true },
-              function() {
+              function () {
                 chrome.tabs.executeScript(
                   tabId,
                   { file: "js/contentScript.js", allFrames: true },
-                  function() {
+                  function () {
                     console.log("ContentScript injected!");
                     resolve();
                   }
@@ -188,17 +188,17 @@ function compareStartedDateTime(a, b) {
 }
 
 if (tabId) {
-  chrome.storage.local.get("options", function(data) {
+  chrome.storage.local.get("options", function (data) {
     let options = data["options"];
     optionDisablePaintingAndPopupCache = options.disablePaintAndPopupOption;
     optionDisableURLFilter = options.disableURLFilterOption;
 
     // Create panel once we load the options
-    chrome.devtools.panels.create(PANEL_NAME, PANEL_LOGO, PANEL_HTML, function(
+    chrome.devtools.panels.create(PANEL_NAME, PANEL_LOGO, PANEL_HTML, function (
       panel
     ) {
       panelReady = true;
-      panel.onSearch.addListener(function(action, queryString) {
+      panel.onSearch.addListener(function (action, queryString) {
         chrome.runtime.sendMessage({
           type: "search-panel-string",
           action: action,
@@ -210,7 +210,7 @@ if (tabId) {
   });
 
   //Network Panel onRequestFinished
-  chrome.devtools.network.onRequestFinished.addListener(function(request) {
+  chrome.devtools.network.onRequestFinished.addListener(function (request) {
     if (bufferNetworkRequests && !request.request.url.startsWith("data:")) {
       networkRequestBuffer.push(request);
     } else if (!bufferNetworkRequests) {
@@ -240,7 +240,7 @@ if (tabId) {
   });
 
   // On webNavigation-onBeforeNavigate
-  chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+  chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (
       message.type.match("webNavigation-onBeforeNavigate") &&
       tabId == message.tabId
@@ -253,7 +253,7 @@ if (tabId) {
   });
 
   // webNavigation.onDOMContentLoaded
-  chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+  chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (
       message.type.match("webNavigation-onDOMContentLoaded") &&
       tabId == message.tabId
@@ -265,7 +265,7 @@ if (tabId) {
   });
 
   // webNavigation.onCompleted
-  chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+  chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (message.type.match("page-onload-event") && tabId == message.tabId) {
       if (message.frameId == 0) {
         currentURL = message.newUrl;
@@ -273,7 +273,7 @@ if (tabId) {
         if (isAllowedToInjectContentScript(optionDisablePaintingAndPopupCache, optionDisableURLFilter)) {
           if (!contectScriptInjected) {
             console.log("Injecting ContentScript");
-            injectContentScript(tabId, message.frameId).then(function() {
+            injectContentScript(tabId, message.frameId).then(function () {
               contectScriptInjected = true;
             });
           }
@@ -309,7 +309,7 @@ if (tabId) {
   }
 
   // Paint Option Listener
-  chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+  chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (message.type.match(DISABLE_PAINT_AND_POPUP_OPTION_MESSAGE)) {
       optionDisablePaintingAndPopupCache = message.option;
       console.log(
@@ -319,7 +319,7 @@ if (tabId) {
   });
 
   // URL Filter Option Listener
-  chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+  chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (message.type.match(DISABLE_URL_FILTER_OPTION_MESSAGE)) {
       optionDisableURLFilter = message.option;
       console.log(
@@ -330,7 +330,7 @@ if (tabId) {
 
   // Passing image found image request from iframe content script to the content script
   // of the main where popup window can be accessed
-  chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+  chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (message.type.match("found-image") && tabId == message.tabId) {
       chrome.tabs.sendMessage(tabId, {
         type: "found-image-response",
@@ -342,7 +342,7 @@ if (tabId) {
 
   // Send the 'remove-grey-scale' message back to every content script including the ones
   // in iframe
-  chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+  chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (message.type.match("reset-previous-image") && tabId == message.tabId) {
       hoveredImageURL = "";
       hoveredImageRedirectURL = "";
@@ -355,7 +355,7 @@ if (tabId) {
 }
 
 // Key command listener
-chrome.commands.onCommand.addListener(function(command) {
+chrome.commands.onCommand.addListener(function (command) {
   console.log("Command:", command);
   if (command && command == COPY_POPUP_URL) {
     console.log("Copy popup URL request received");
