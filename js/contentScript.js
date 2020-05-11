@@ -503,7 +503,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   if (message.type !== "copy-popup-url" || message.tabId != tabId) return;
   // Ignore iframe since only the main contains the popup DOM.
   if (checkIFrameImage()) return;
-  // copyPopupImageURL();
+  selectImageURLTextarea();
   document.execCommand("copy");
 });
 
@@ -547,12 +547,7 @@ bodyDOM.addEventListener("copy", event => {
  * @param {bool} success - "copy" action went successfully.
  */
 function updateCopyPopupImageURL(success) {
-  let popupURLTextArea = document.getElementsByClassName(
-    CF_DEBUGGER_URL_TEXT_AREA
-  )[0];
-  if (popupURLTextArea) {
-    // No return value for select() Method.
-    popupURLTextArea.select();
+  if (selectImageURLTextarea()) {
     let notificationText = document.getElementsByClassName(
       "cf-debugger-copy-url-notification"
     )[0];
@@ -580,6 +575,24 @@ function updateCopyPopupImageURL(success) {
   } else {
     // Debugging Purposes
     // notificationText.innerHTML = "Copied URL: Undefined";
+  }
+}
+
+/**
+ * Select popup textarea for image URL copy purpose
+ *
+ * @returns {boolean} - True if the popup textarea exists
+ */
+function selectImageURLTextarea() {
+  const popupURLTextArea = document.getElementsByClassName(
+    CF_DEBUGGER_URL_TEXT_AREA
+  )[0];
+
+  if (popupURLTextArea) {
+    popupURLTextArea.select();
+    return true;
+  } else {
+    return false;
   }
 }
 
@@ -911,6 +924,7 @@ function updatePopupDOM(imageRequest, count = 0) {
 
     let popupDiv = document.getElementsByClassName("cf-debugger-popup")[0];
     popupDiv.appendChild(popupHeaderDOM);
+    // selectImageURLTextarea();
   }
 }
 
