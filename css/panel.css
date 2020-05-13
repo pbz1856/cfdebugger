@@ -6,6 +6,29 @@ table td {
   display: table-row;
 }
 
+/* Todd */
+.cf-debugger-extension-status {
+  position: relative !important;
+  top: 0px !important;
+  width: 100% !important;
+  height: 0;
+  font-size: 16px !important;
+  box-sizing: border-box !important;
+  color: white !important;
+  text-align: center !important;
+  right: 0px !important;
+  padding-top: 3px !important;
+  background: #ff851b !important;
+  overflow: hidden;
+  box-sizing: border-box !important;
+  z-index: 999;
+}
+
+.cf-debugger-extension-status.active {
+  height: 30px;
+}
+
+
 /* Ricky */
 .dark-background {
   background-color:rgb(33, 33, 36);

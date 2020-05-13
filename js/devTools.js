@@ -325,8 +325,19 @@ if (tabId) {
       console.log(
         `DisableURLFilter Option Changed to ${optionDisableURLFilter}`
       );
+      notifyPanel(optionDisableURLFilter);
     }
   });
+
+  // Send a message to panel to remove/display a warning message when user disable
+  // the extension
+  function notifyPanel(option) {
+    chrome.runtime.sendMessage({
+      type: "disable-url-option-status",
+      option: option,
+      tabId: tabId
+    });
+  }
 
   // Passing image found image request from iframe content script to the content script
   // of the main where popup window can be accessed

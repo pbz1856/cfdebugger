@@ -306,7 +306,6 @@ function appendPopupDOMToBody() {
   popupDiv.appendChild(popupURLTextArea);
 
   document.body.appendChild(popupDiv);
-  // document.body.appendChild(notificationDiv);
 }
 
 /**
